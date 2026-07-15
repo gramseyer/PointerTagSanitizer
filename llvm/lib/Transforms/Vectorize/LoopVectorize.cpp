@@ -141,6 +141,7 @@
 #include "llvm/Transforms/Utils/LoopVersioning.h"
 #include "llvm/Transforms/Utils/ScalarEvolutionExpander.h"
 #include "llvm/Transforms/Utils/SizeOpts.h"
+#include "llvm/Transforms/Utils/PTSanLoopBounds.h"
 #include "llvm/Transforms/Vectorize/LoopVectorizationLegality.h"
 #include <algorithm>
 #include <cassert>
@@ -7743,15 +7744,18 @@ DenseMap<const SCEV *, Value *> LoopVectorizationPlanner::executePlan(
   // 2.6. Maintain Loop Hints
   // Keep all loop hints from the original loop on the vector loop (we'll
   // replace the vectorizer-specific hints below).
+  MDNode *OrigLoopID = OrigLoop->getLoopID();
+  BasicBlock *VectorHeader = nullptr;
+  BasicBlock *VectorPreheader = nullptr;
   if (auto *LoopRegion = BestVPlan.getVectorLoopRegion()) {
-    MDNode *OrigLoopID = OrigLoop->getLoopID();
-
     std::optional<MDNode *> VectorizedLoopID =
         makeFollowupLoopID(OrigLoopID, {LLVMLoopVectorizeFollowupAll,
                                         LLVMLoopVectorizeFollowupVectorized});
 
     VPBasicBlock *HeaderVPBB = LoopRegion->getEntryBasicBlock();
-    Loop *L = LI->getLoopFor(State.CFG.VPBB2IRBB[HeaderVPBB]);
+    VectorHeader = State.CFG.VPBB2IRBB[HeaderVPBB];
+    VectorPreheader = ILV.LoopVectorPreHeader;
+    Loop *L = LI->getLoopFor(VectorHeader);
     if (VectorizedLoopID) {
       L->setLoopID(*VectorizedLoopID);
     } else {
@@ -7772,6 +7776,8 @@ DenseMap<const SCEV *, Value *> LoopVectorizationPlanner::executePlan(
   // 3. Fix the vectorized code: take care of header phi's, live-outs,
   //    predication, updating analyses.
   ILV.fixVectorizedLoop(State);
+  if (VectorHeader)
+    ptsan::copyLoopBounds(VectorHeader, VectorPreheader, OrigLoopID);
 
   ILV.printDebugTracesAtEnd();
 
@@ -10750,6 +10756,7 @@ bool LoopVectorizePass::processLoop(Loop *L) {
     // Mark the loop as already vectorized to avoid vectorizing again.
     Hints.setAlreadyVectorized();
   }
+  ptsan::copyLoopBounds(L, OrigLoopID);
 
   assert(!verifyFunction(*L->getHeader()->getParent(), &dbgs()));
   return true;
