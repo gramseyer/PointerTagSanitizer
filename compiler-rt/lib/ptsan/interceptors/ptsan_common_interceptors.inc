@@ -8695,7 +8695,11 @@ PTSAN_INTERCEPTOR(char *, MD5Data, (, data, len, buf), const unsigned char *data
 #define INIT_MD5
 #endif
 
-#if SANITIZER_INTERCEPT_FSEEK
+// PTSan: fseek/ftell/rewind/fgetpos/fsetpos are hand-implemented (with clear_id
+// tag stripping on the FILE*) in ptsan_interceptors_with_libc_headers.cpp. LLVM 20
+// newly turned on SANITIZER_INTERCEPT_FSEEK (SI_POSIX), which would double-define
+// them here without tag clearing; keep this block disabled so PTSan's versions win.
+#if 0 // was: SANITIZER_INTERCEPT_FSEEK
 PTSAN_INTERCEPTOR(int, fseek, (, stream, offset, whence), __sanitizer_FILE *stream, long int offset, int whence) {
   void *ctx;
   COMMON_INTERCEPTOR_ENTER(ctx, fseek, stream, offset, whence);
