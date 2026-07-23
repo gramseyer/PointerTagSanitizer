@@ -3,8 +3,8 @@
 ; RUN: cat out.ll | FileCheck %s
 
 ;CHECK: if.end:                                           ; preds = %if.else, %if.then
-;CHECK-DAG:   {{%.*}} = getelementptr inbounds [65536 x %__ptsan_ObjectBounds], ptr @ptsan_bounds, i64 0, i64 %ptr.0.id{{[0-9]*}}.pre-phi, i32 0
-;CHECK-DAG:   {{%.*}} = getelementptr inbounds [65536 x %__ptsan_ObjectBounds], ptr @ptsan_bounds, i64 0, i64 %ptr.0.id{{[0-9]*}}.pre-phi, i32 1
+;CHECK-DAG:   {{%.*}} = getelementptr inbounds nuw [65536 x %__ptsan_ObjectBounds], ptr @ptsan_bounds, i64 0, i64 %ptr.0.id{{[0-9]*}}.pre-phi, i32 0
+;CHECK-DAG:   {{%.*}} = getelementptr inbounds nuw [65536 x %__ptsan_ObjectBounds], ptr @ptsan_bounds, i64 0, i64 %ptr.0.id{{[0-9]*}}.pre-phi, i32 1
 ;CHECK-DAG:   {{%.*}} = load i64, ptr {{%.*}}, align 8
 ;CHECK-DAG:   {{%.*}} = load i64, ptr {{%.*}}, align 8
 ;CHECK-DAG:   %ptr.0.inRange.not =

@@ -20,6 +20,7 @@ endforeach()
 set(PTSAN_TEST_DEPS ${SANITIZER_COMMON_LIT_TEST_DEPS})
 list(APPEND PTSAN_TEST_DEPS ptsan)
 list(APPEND PTSAN_TEST_DEPS opt)
+list(APPEND PTSAN_TEST_DEPS llc)
 
 add_lit_testsuite(check-ptsan "Running the Pointer Tag Sanitizer tests"
   ${PTSAN_TESTSUITES}

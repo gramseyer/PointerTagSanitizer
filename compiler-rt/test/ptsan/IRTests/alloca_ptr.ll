@@ -6,9 +6,9 @@
 ; CHECK-LABEL: define{{.*}}@case_alloca_ptr
 ; CHECK-LABEL: entry:
 ; CHECK: %local = alloca [8 x i32]
-; CHECK: getelementptr inbounds [65536 x %__ptsan_ObjectBounds], ptr @ptsan_bounds, i64 0, i64
+; CHECK: getelementptr inbounds nuw [65536 x %__ptsan_ObjectBounds], ptr @ptsan_bounds, i64 0, i64
 ; Exactly one gep for the memset at the end
-; CHECK: = getelementptr inbounds [65536 x %__ptsan_ObjectBounds], ptr @ptsan_bounds
+; CHECK: = getelementptr inbounds nuw [65536 x %__ptsan_ObjectBounds], ptr @ptsan_bounds
 ; CHECK-NEXT: call void @llvm.memset
 
 

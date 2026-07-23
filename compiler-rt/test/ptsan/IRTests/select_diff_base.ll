@@ -3,8 +3,8 @@
 ; RUN: cat out.ll | FileCheck %s
 
 ;CHECK: %cond = select i1 %tobool.not, ptr %call1, ptr %call
-;CHECK-DAG: {{%.*}} = getelementptr inbounds [65536 x %__ptsan_ObjectBounds], ptr @ptsan_bounds, i64 0, i64 %cond.id{{[0-9]*}}, i32 0
-;CHECK-DAG: {{%.*}} = getelementptr inbounds [65536 x %__ptsan_ObjectBounds], ptr @ptsan_bounds, i64 0, i64 %cond.id{{[0-9]*}}, i32 1
+;CHECK-DAG: {{%.*}} = getelementptr inbounds nuw [65536 x %__ptsan_ObjectBounds], ptr @ptsan_bounds, i64 0, i64 %cond.id{{[0-9]*}}, i32 0
+;CHECK-DAG: {{%.*}} = getelementptr inbounds nuw [65536 x %__ptsan_ObjectBounds], ptr @ptsan_bounds, i64 0, i64 %cond.id{{[0-9]*}}, i32 1
 
 
 ; ModuleID = '../hoisting.c'
