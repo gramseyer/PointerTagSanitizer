@@ -338,7 +338,7 @@ struct PTSanIRB
     this->SetInsertPoint(I);
   }
   explicit PTSanIRB(PointerTagSanitizer &DS, LLVMContext &Ctx)
-      : IRBuilder(Ctx, DS.DL,
+      : IRBuilder(Ctx, InstSimplifyFolder(DS.DL),
                   IRBuilderCallbackInserter(
                       [&DS](Instruction *I) {
                         DS.markAsInstr(I);
