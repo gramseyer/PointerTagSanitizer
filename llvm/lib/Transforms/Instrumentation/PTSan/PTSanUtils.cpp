@@ -277,6 +277,16 @@ Use *getPTSanRewriteablePointerUse(Instruction &I) {
   }
 
   if (auto *GEP = dyn_cast<GetElementPtrInst>(&I)) {
+    // The optimizer can canonicalize pointer arithmetic done on integers so
+    // that a literal address is the GEP base and the tagged pointer is an
+    // index, as in `getelementptr i8, ptr inttoptr (i64 -1 to ptr), i64 %end`
+    // for `begin[(end - begin) - 1]`. The result then takes its ID from the
+    // index: the literal is neither its base nor a place to move a strip to.
+    // ID16 only. An ID32 strip needs the ID of its operand's base, and the
+    // strip hoisting does not expect a GEP to be one.
+    if (!Cl32BitIDs && isUntaggedConstantPtr(GEP->getPointerOperand())) {
+      return nullptr;
+    }
     return &GEP->getOperandUse(0);
   }
 
@@ -310,6 +320,10 @@ Value *getPTSanPointerPeel(Value *V) {
   }
 
   if (auto *GEP = dyn_cast<GEPOperator>(V)) {
+    // As in getPTSanRewriteablePointerUse: a literal address is not a base.
+    if (!Cl32BitIDs && isUntaggedConstantPtr(GEP->getPointerOperand())) {
+      return nullptr;
+    }
     return GEP->getPointerOperand();
   }
 
