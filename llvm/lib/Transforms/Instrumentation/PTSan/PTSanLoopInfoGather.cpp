@@ -90,6 +90,14 @@ void PTSanLoopInfoGather::analyzePtrOp(DenseMap<Loop *, SmallVector<CheckInfo>> 
   Value *BasePtr = PTU.findBasePointer(Ptr);
   DBG(errs() << "Got base pointer " << *BasePtr << "\n");
 
+  // A constant size with the top bit set has no range to hoist. The access
+  // keeps the check that PTSanDiscoverer::addPtrSink gives it.
+  if (auto *SizeConst = dyn_cast_or_null<ConstantInt>(Op.Size);
+      SizeConst && SizeConst->isNegative()) {
+    DBG(errs() << "\tAccess size is not representable\n");
+    return;
+  }
+
   auto PointRange = PTU.getScalarEnvelope(Ptr, Op.Size, Op.Mask, I);
   if (!PointRange) {
     DBG(errs() << "\tAccess does not have a scalar range\n");
