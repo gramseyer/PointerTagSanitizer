@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 // REQUIRES: x86_64-target-arch
-// RUN: %clang_raw -O2 -march=x86-64 -S -emit-llvm %s -o - | FileCheck %s
+// RUN: %clang_raw -O2 -march=x86-64 -fno-discard-value-names -S -emit-llvm %s -o - | \
+// RUN:   FileCheck %s
 // RUN: %clang_ptsan -O2 -march=x86-64 -mllvm -ptsan-clear-ids-on-cmp=0 -mllvm -ptsan-clear-ids-on-arith=0 %s -o %t
 // RUN: %run %t
 // RUN: %clang_ptsan_id32 -O2 -march=x86-64 -mllvm -ptsan-clear-ids-on-cmp=0 -mllvm -ptsan-clear-ids-on-arith=0 %s -o %t.id32

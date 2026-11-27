@@ -7,7 +7,8 @@
 // in range. ID32 conversion must preserve these valid final accesses, both
 // with optimized inbounds GEPs and with unoptimized non-inbounds arithmetic.
 
-// RUN: %clang_raw -O2 -S -emit-llvm -o - %s | FileCheck %s --check-prefix=IR
+// RUN: %clang_raw -O2 -fno-discard-value-names -S -emit-llvm -o - %s | \
+// RUN:   FileCheck %s --check-prefix=IR
 // RUN: %clang_ptsan_id32 -O2 -o %t %s
 // RUN: %run %t x
 // RUN: %clang_ptsan_id32 -O2 -fno-strict-overflow -mllvm -ptsan-no-opts -o %t.no-opts %s
