@@ -9,8 +9,9 @@
 // REQUIRES: x86_64-target-arch
 // AVX2 is intentional: without it this loop remains scalar and does not
 // exercise storing an entire vector of pointers.
-// RUN: %clang_raw -O2 -mavx2 -mllvm -force-vector-width=8 \
-// RUN:   -mllvm -force-vector-interleave=1 -S -emit-llvm -o - %s | \
+// RUN: %clang_raw -O2 -mavx2 -fno-discard-value-names \
+// RUN:   -mllvm -force-vector-width=8 -mllvm -force-vector-interleave=1 \
+// RUN:   -S -emit-llvm -o - %s | \
 // RUN:   FileCheck %s --check-prefix=RAW
 // RUN: %clang_ptsan_id32 -O2 -mavx2 -mllvm -force-vector-width=8 \
 // RUN:   -mllvm -force-vector-interleave=1 -I%crt_src/include -o %t %s
